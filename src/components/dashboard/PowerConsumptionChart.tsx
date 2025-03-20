@@ -91,10 +91,23 @@ export default function PowerConsumptionChart({ className }: PowerConsumptionCha
   const [timeRange, setTimeRange] = useState<TimeRange>('daily');
   const data = datasets[timeRange];
   
-  const getYAxisDomain = (dataMin: number, dataMax: number) => {
-    const min = Math.max(0, dataMin - (dataMax - dataMin) * 0.1);
-    const max = dataMax + (dataMax - dataMin) * 0.1;
-    return [min, max];
+  // Fixed the YAxis domain function to return the correct type
+  const getYAxisDomain = () => {
+    // Find min and max values across all data series
+    let minValue = Number.MAX_VALUE;
+    let maxValue = Number.MIN_VALUE;
+    
+    data.forEach(item => {
+      const currentMin = Math.min(item.current, item.predicted, item.optimized);
+      const currentMax = Math.max(item.current, item.predicted, item.optimized);
+      
+      if (currentMin < minValue) minValue = currentMin;
+      if (currentMax > maxValue) maxValue = currentMax;
+    });
+    
+    // Add 10% padding
+    const padding = (maxValue - minValue) * 0.1;
+    return [Math.max(0, minValue - padding), maxValue + padding];
   };
   
   return (
@@ -162,7 +175,7 @@ export default function PowerConsumptionChart({ className }: PowerConsumptionCha
             axisLine={{ opacity: 0.5 }}
           />
           <YAxis 
-            domain={getYAxisDomain}
+            domain={getYAxisDomain()}
             tick={{ fontSize: 12 }}
             tickLine={{ opacity: 0.5 }}
             axisLine={{ opacity: 0.5 }}
