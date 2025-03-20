@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Zap, 
@@ -19,8 +19,27 @@ import AIRecommendations from '@/components/dashboard/AIRecommendations';
 import MetricCard from '@/components/dashboard/MetricCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import PowerConsumptionReport from '@/components/dashboard/PowerConsumptionReport';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Index() {
+  const [showReport, setShowReport] = useState(false);
+  const { toast } = useToast();
+
+  const handleGenerateReport = () => {
+    // Show loading toast
+    toast({
+      title: "Generating Report",
+      description: "Analyzing factory data and preparing your report...",
+      duration: 1500,
+    });
+    
+    // Simulate processing time then show the report
+    setTimeout(() => {
+      setShowReport(true);
+    }, 1500);
+  };
+
   return (
     <Layout>
       <div className="space-y-8 animate-slide-up">
@@ -32,7 +51,7 @@ export default function Index() {
               Monitor and optimize your factory's power consumption
             </p>
           </div>
-          <Button size="sm" className="shrink-0 h-9 gap-1">
+          <Button size="sm" className="shrink-0 h-9 gap-1" onClick={handleGenerateReport}>
             <Sparkles size={16} />
             <span>Generate Report</span>
           </Button>
@@ -196,6 +215,9 @@ export default function Index() {
           </div>
         </DashboardCard>
       </div>
+
+      {/* Render the report modal when showReport is true */}
+      {showReport && <PowerConsumptionReport onClose={() => setShowReport(false)} />}
     </Layout>
   );
 }
