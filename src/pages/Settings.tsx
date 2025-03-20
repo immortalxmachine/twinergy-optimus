@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -59,257 +58,506 @@ export default function Settings() {
                   <span>Connections</span>
                 </TabsTrigger>
               </TabsList>
+              
+              {/* Main Content - Moving the TabsContent components inside the Tabs component */}
+              <div className="col-span-12 md:col-span-9 hidden md:block"> {/* Hide on mobile */}
+                <Card>
+                  <TabsContent value="profile" className="m-0">
+                    <CardHeader>
+                      <CardTitle>Profile Settings</CardTitle>
+                      <CardDescription>
+                        Manage your profile information and account preferences
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Full Name</Label>
+                          <Input id="name" defaultValue="Factory Admin" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input id="email" defaultValue="admin@twinergy.com" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="title">Job Title</Label>
+                        <Input id="title" defaultValue="Operations Manager" />
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex justify-end">
+                        <Button className="gap-1.5">
+                          <Save className="h-4 w-4" />
+                          <span>Save Changes</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </TabsContent>
+                  
+                  <TabsContent value="security" className="m-0">
+                    <CardHeader>
+                      <CardTitle>Security Settings</CardTitle>
+                      <CardDescription>
+                        Manage your account security and access controls
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="current-password">Current Password</Label>
+                        <Input id="current-password" type="password" />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">New Password</Label>
+                          <Input id="new-password" type="password" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-password">Confirm Password</Label>
+                          <Input id="confirm-password" type="password" />
+                        </div>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="two-factor">Two-factor Authentication</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Add an extra layer of security to your account
+                          </p>
+                        </div>
+                        <Switch id="two-factor" />
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex justify-end">
+                        <Button className="gap-1.5">
+                          <Save className="h-4 w-4" />
+                          <span>Save Changes</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </TabsContent>
+                  
+                  <TabsContent value="notifications" className="m-0">
+                    <CardHeader>
+                      <CardTitle>Notification Preferences</CardTitle>
+                      <CardDescription>
+                        Configure how and when you receive notifications
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Email Notifications</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Receive notifications via email
+                            </p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Push Notifications</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Receive notifications on your device
+                            </p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>SMS Notifications</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Receive urgent notifications via SMS
+                            </p>
+                          </div>
+                          <Switch />
+                        </div>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex justify-end">
+                        <Button className="gap-1.5">
+                          <Save className="h-4 w-4" />
+                          <span>Save Changes</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </TabsContent>
+                  
+                  <TabsContent value="system" className="m-0">
+                    <CardHeader>
+                      <CardTitle>System Settings</CardTitle>
+                      <CardDescription>
+                        Configure global system behavior and performance
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Automatic Updates</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Allow the system to update automatically
+                            </p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Data Collection</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Allow anonymous usage data collection
+                            </p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>High Performance Mode</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Increases processing power but uses more resources
+                            </p>
+                          </div>
+                          <Switch />
+                        </div>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex justify-end">
+                        <Button className="gap-1.5">
+                          <Save className="h-4 w-4" />
+                          <span>Save Changes</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </TabsContent>
+                  
+                  <TabsContent value="connections" className="m-0">
+                    <CardHeader>
+                      <CardTitle>External Connections</CardTitle>
+                      <CardDescription>
+                        Manage integrations with other systems and services
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5 flex items-center gap-2">
+                            <Cloud className="h-5 w-5 text-primary" />
+                            <div>
+                              <p className="font-medium">Cloud Storage</p>
+                              <p className="text-sm text-muted-foreground">
+                                Connected to AWS S3
+                              </p>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm">Configure</Button>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5 flex items-center gap-2">
+                            <Shield className="h-5 w-5 text-primary" />
+                            <div>
+                              <p className="font-medium">Authentication</p>
+                              <p className="text-sm text-muted-foreground">
+                                Connected to Auth0
+                              </p>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm">Configure</Button>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5 flex items-center gap-2">
+                            <Bell className="h-5 w-5 text-primary" />
+                            <div>
+                              <p className="font-medium">Notification Service</p>
+                              <p className="text-sm text-muted-foreground">
+                                Connected to SendGrid
+                              </p>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm">Configure</Button>
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4">
+                        <Button variant="outline" className="w-full">
+                          <span>Add New Connection</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </TabsContent>
+                </Card>
+              </div>
             </Tabs>
           </div>
           
-          {/* Main Content */}
-          <div className="col-span-12 md:col-span-9">
-            <Card>
-              <TabsContent value="profile" className="m-0">
-                <CardHeader>
-                  <CardTitle>Profile Settings</CardTitle>
-                  <CardDescription>
-                    Manage your profile information and account preferences
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input id="name" defaultValue="Factory Admin" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" defaultValue="admin@twinergy.com" />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Job Title</Label>
-                    <Input id="title" defaultValue="Operations Manager" />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-end">
-                    <Button className="gap-1.5">
-                      <Save className="h-4 w-4" />
-                      <span>Save Changes</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="security" className="m-0">
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>
-                    Manage your account security and access controls
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="current-password">Current Password</Label>
-                    <Input id="current-password" type="password" />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-password">New Password</Label>
-                      <Input id="new-password" type="password" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Confirm Password</Label>
-                      <Input id="confirm-password" type="password" />
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="two-factor">Two-factor Authentication</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Add an extra layer of security to your account
-                      </p>
-                    </div>
-                    <Switch id="two-factor" />
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-end">
-                    <Button className="gap-1.5">
-                      <Save className="h-4 w-4" />
-                      <span>Save Changes</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="notifications" className="m-0">
-                <CardHeader>
-                  <CardTitle>Notification Preferences</CardTitle>
-                  <CardDescription>
-                    Configure how and when you receive notifications
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Email Notifications</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receive notifications via email
-                        </p>
+          {/* Mobile View of Content */}
+          <div className="col-span-12 md:hidden">
+            <Tabs defaultValue="profile">
+              <Card>
+                <TabsContent value="profile" className="m-0">
+                  <CardHeader>
+                    <CardTitle>Profile Settings</CardTitle>
+                    <CardDescription>
+                      Manage your profile information and account preferences
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Same content as desktop view */}
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="name-mobile">Full Name</Label>
+                        <Input id="name-mobile" defaultValue="Factory Admin" />
                       </div>
-                      <Switch defaultChecked />
+                      <div className="space-y-2">
+                        <Label htmlFor="email-mobile">Email</Label>
+                        <Input id="email-mobile" defaultValue="admin@twinergy.com" />
+                      </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Push Notifications</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receive notifications on your device
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
+                    <div className="space-y-2">
+                      <Label htmlFor="title-mobile">Job Title</Label>
+                      <Input id="title-mobile" defaultValue="Operations Manager" />
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>SMS Notifications</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Receive urgent notifications via SMS
-                        </p>
-                      </div>
-                      <Switch />
+                    <Separator />
+                    
+                    <div className="flex justify-end">
+                      <Button className="gap-1.5">
+                        <Save className="h-4 w-4" />
+                        <span>Save Changes</span>
+                      </Button>
                     </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-end">
-                    <Button className="gap-1.5">
-                      <Save className="h-4 w-4" />
-                      <span>Save Changes</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="system" className="m-0">
-                <CardHeader>
-                  <CardTitle>System Settings</CardTitle>
-                  <CardDescription>
-                    Configure global system behavior and performance
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Automatic Updates</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Allow the system to update automatically
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
+                  </CardContent>
+                </TabsContent>
+                
+                {/* Other tabs content for mobile view */}
+                <TabsContent value="security" className="m-0">
+                  {/* Security content for mobile */}
+                  <CardHeader>
+                    <CardTitle>Security Settings</CardTitle>
+                    <CardDescription>
+                      Manage your account security and access controls
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Same content as desktop view */}
+                    {/* ... Security settings content */}
+                    <div className="space-y-2">
+                      <Label htmlFor="current-password-mobile">Current Password</Label>
+                      <Input id="current-password-mobile" type="password" />
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Data Collection</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Allow anonymous usage data collection
-                        </p>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-password-mobile">New Password</Label>
+                        <Input id="new-password-mobile" type="password" />
                       </div>
-                      <Switch defaultChecked />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>High Performance Mode</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Increases processing power but uses more resources
-                        </p>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirm-password-mobile">Confirm Password</Label>
+                        <Input id="confirm-password-mobile" type="password" />
                       </div>
-                      <Switch />
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div className="flex justify-end">
-                    <Button className="gap-1.5">
-                      <Save className="h-4 w-4" />
-                      <span>Save Changes</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="connections" className="m-0">
-                <CardHeader>
-                  <CardTitle>External Connections</CardTitle>
-                  <CardDescription>
-                    Manage integrations with other systems and services
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5 flex items-center gap-2">
-                        <Cloud className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">Cloud Storage</p>
-                          <p className="text-sm text-muted-foreground">
-                            Connected to AWS S3
-                          </p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">Configure</Button>
                     </div>
                     
                     <Separator />
                     
                     <div className="flex items-center justify-between">
-                      <div className="space-y-0.5 flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">Authentication</p>
-                          <p className="text-sm text-muted-foreground">
-                            Connected to Auth0
-                          </p>
-                        </div>
+                      <div className="space-y-0.5">
+                        <Label htmlFor="two-factor-mobile">Two-factor Authentication</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Add an extra layer of security to your account
+                        </p>
                       </div>
-                      <Button variant="outline" size="sm">Configure</Button>
+                      <Switch id="two-factor-mobile" />
                     </div>
                     
-                    <Separator />
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5 flex items-center gap-2">
-                        <Bell className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">Notification Service</p>
+                    <div className="flex justify-end">
+                      <Button className="gap-1.5">
+                        <Save className="h-4 w-4" />
+                        <span>Save Changes</span>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </TabsContent>
+                
+                {/* Other mobile tabs content would follow the same pattern */}
+                <TabsContent value="notifications" className="m-0">
+                  {/* Notifications content for mobile */}
+                  <CardHeader>
+                    <CardTitle>Notification Preferences</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Mobile notifications content */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Email Notifications</Label>
                           <p className="text-sm text-muted-foreground">
-                            Connected to SendGrid
+                            Receive notifications via email
                           </p>
                         </div>
+                        <Switch defaultChecked />
                       </div>
-                      <Button variant="outline" size="sm">Configure</Button>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Push Notifications</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Receive notifications on your device
+                          </p>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>SMS Notifications</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Receive urgent notifications via SMS
+                          </p>
+                        </div>
+                        <Switch />
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <Button className="gap-1.5">
+                          <Save className="h-4 w-4" />
+                          <span>Save Changes</span>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="pt-4">
-                    <Button variant="outline" className="w-full">
-                      <span>Add New Connection</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </TabsContent>
-            </Card>
+                  </CardContent>
+                </TabsContent>
+                
+                <TabsContent value="system" className="m-0">
+                  {/* System content for mobile */}
+                  <CardHeader>
+                    <CardTitle>System Settings</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Mobile system content */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Automatic Updates</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Allow the system to update automatically
+                          </p>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Data Collection</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Allow anonymous usage data collection
+                          </p>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>High Performance Mode</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Increases processing power but uses more resources
+                          </p>
+                        </div>
+                        <Switch />
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <Button className="gap-1.5">
+                          <Save className="h-4 w-4" />
+                          <span>Save Changes</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </TabsContent>
+                
+                <TabsContent value="connections" className="m-0">
+                  {/* Connections content for mobile */}
+                  <CardHeader>
+                    <CardTitle>External Connections</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Mobile connections content */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex items-center gap-2">
+                          <Cloud className="h-5 w-5 text-primary" />
+                          <div>
+                            <p className="font-medium">Cloud Storage</p>
+                            <p className="text-sm text-muted-foreground">
+                              Connected to AWS S3
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">Configure</Button>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-primary" />
+                          <div>
+                            <p className="font-medium">Authentication</p>
+                            <p className="text-sm text-muted-foreground">
+                              Connected to Auth0
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">Configure</Button>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5 flex items-center gap-2">
+                          <Bell className="h-5 w-5 text-primary" />
+                          <div>
+                            <p className="font-medium">Notification Service</p>
+                            <p className="text-sm text-muted-foreground">
+                              Connected to SendGrid
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">Configure</Button>
+                      </div>
+                      
+                      <div className="pt-4">
+                        <Button variant="outline" className="w-full">
+                          <span>Add New Connection</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </TabsContent>
+              </Card>
+            </Tabs>
           </div>
         </div>
       </div>
