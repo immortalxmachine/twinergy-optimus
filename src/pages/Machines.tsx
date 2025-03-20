@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import MachineStatusGrid from '@/components/dashboard/MachineStatusGrid';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,64 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, PlusCircle } from 'lucide-react';
+import { machineData, MachineType } from '@/components/machines/MachineData';
+import MachineListView from '@/components/machines/MachineListView';
+import { useToast } from '@/hooks/use-toast';
+import AddMachineDialog from '@/components/machines/AddMachineDialog';
 
 export default function Machines() {
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [efficiencyFilter, setEfficiencyFilter] = useState('all');
+  const [filteredMachines, setFilteredMachines] = useState<MachineType[]>([]);
+  const [showAddMachineDialog, setShowAddMachineDialog] = useState(false);
+
+  // Convert machine data object to array
+  const machinesArray = Object.values(machineData);
+
+  // Filter machines based on search query and filters
+  useEffect(() => {
+    let result = [...machinesArray];
+    
+    // Apply search filter
+    if (searchQuery) {
+      result = result.filter(machine => 
+        machine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        machine.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        machine.id.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      result = result.filter(machine => machine.status === statusFilter);
+    }
+    
+    // Apply efficiency filter
+    if (efficiencyFilter !== 'all') {
+      // Map efficiency ranges to numeric values
+      const efficiencyMap: Record<string, [number, number]> = {
+        'high': [90, 100],
+        'medium': [70, 89.9],
+        'low': [0, 69.9]
+      };
+      
+      if (efficiencyFilter in efficiencyMap) {
+        const [min, max] = efficiencyMap[efficiencyFilter];
+        result = result.filter(machine => 
+          machine.efficiency >= min && machine.efficiency <= max
+        );
+      }
+    }
+    
+    setFilteredMachines(result);
+  }, [searchQuery, statusFilter, efficiencyFilter, machinesArray]);
+
+  const handleAddMachine = () => {
+    setShowAddMachineDialog(true);
+  };
+
   return (
     <Layout>
       <div className="space-y-8 animate-slide-up">
@@ -26,7 +82,7 @@ export default function Machines() {
               Monitor and manage all machines in your factory
             </p>
           </div>
-          <Button className="shrink-0 gap-1.5 self-start md:self-auto">
+          <Button className="shrink-0 gap-1.5 self-start md:self-auto" onClick={handleAddMachine}>
             <PlusCircle size={16} />
             <span>Add Machine</span>
           </Button>
@@ -39,17 +95,23 @@ export default function Machines() {
             <Input 
               placeholder="Search machines..." 
               className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           
           <div className="md:col-span-3 lg:col-span-2">
-            <Select defaultValue="all">
+            <Select 
+              defaultValue="all"
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="online">Online</SelectItem>
+                <SelectItem value="active">Online</SelectItem>
                 <SelectItem value="offline">Offline</SelectItem>
                 <SelectItem value="maintenance">Maintenance</SelectItem>
                 <SelectItem value="idle">Idle</SelectItem>
@@ -58,7 +120,11 @@ export default function Machines() {
           </div>
           
           <div className="md:col-span-4 lg:col-span-2">
-            <Select defaultValue="all">
+            <Select 
+              defaultValue="all"
+              value={efficiencyFilter}
+              onValueChange={setEfficiencyFilter}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Efficiency" />
               </SelectTrigger>
@@ -91,136 +157,25 @@ export default function Machines() {
           </TabsList>
           
           <TabsContent value="grid" className="mt-0">
-            <MachineStatusGrid />
+            <MachineStatusGrid machines={filteredMachines} />
           </TabsContent>
           
           <TabsContent value="list" className="mt-0">
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-muted/50">
-                    <th className="text-left p-3 font-medium text-sm">Name</th>
-                    <th className="text-left p-3 font-medium text-sm">Status</th>
-                    <th className="text-left p-3 font-medium text-sm">Power Usage</th>
-                    <th className="text-left p-3 font-medium text-sm">Efficiency</th>
-                    <th className="text-left p-3 font-medium text-sm">Temperature</th>
-                    <th className="text-left p-3 font-medium text-sm">Alerts</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t">
-                    <td className="p-3">CNC Mill A</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-success"></span>
-                        <span>Online</span>
-                      </div>
-                    </td>
-                    <td className="p-3">45.2 kWh</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-efficiency-high"></span>
-                        <span>High</span>
-                      </div>
-                    </td>
-                    <td className="p-3">72.5°F</td>
-                    <td className="p-3">0</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="p-3">Packaging Line B</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-success"></span>
-                        <span>Online</span>
-                      </div>
-                    </td>
-                    <td className="p-3">36.8 kWh</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-efficiency-medium"></span>
-                        <span>Medium</span>
-                      </div>
-                    </td>
-                    <td className="p-3">68.3°F</td>
-                    <td className="p-3">0</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="p-3">Assembly Robot C</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-warning"></span>
-                        <span>Idle</span>
-                      </div>
-                    </td>
-                    <td className="p-3">12.3 kWh</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-efficiency-medium"></span>
-                        <span>Medium</span>
-                      </div>
-                    </td>
-                    <td className="p-3">65.2°F</td>
-                    <td className="p-3">0</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="p-3">Injection Molder D</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-success"></span>
-                        <span>Online</span>
-                      </div>
-                    </td>
-                    <td className="p-3">78.5 kWh</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-efficiency-low"></span>
-                        <span>Low</span>
-                      </div>
-                    </td>
-                    <td className="p-3">86.7°F</td>
-                    <td className="p-3 text-warning font-medium">1</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="p-3">Welding Robot E</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-info"></span>
-                        <span>Maintenance</span>
-                      </div>
-                    </td>
-                    <td className="p-3">—</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-efficiency-high"></span>
-                        <span>High</span>
-                      </div>
-                    </td>
-                    <td className="p-3">45.0°F</td>
-                    <td className="p-3 text-warning font-medium">2</td>
-                  </tr>
-                  <tr className="border-t">
-                    <td className="p-3">Heat Treatment F</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-destructive"></span>
-                        <span>Offline</span>
-                      </div>
-                    </td>
-                    <td className="p-3">—</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-efficiency-medium"></span>
-                        <span>Medium</span>
-                      </div>
-                    </td>
-                    <td className="p-3">32.1°F</td>
-                    <td className="p-3">0</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <MachineListView machines={filteredMachines} />
           </TabsContent>
         </Tabs>
+
+        {/* Add Machine Dialog */}
+        <AddMachineDialog 
+          open={showAddMachineDialog} 
+          onOpenChange={setShowAddMachineDialog}
+          onAddSuccess={() => {
+            toast({
+              title: "Machine Added",
+              description: "The new machine has been added successfully.",
+            });
+          }} 
+        />
       </div>
     </Layout>
   );

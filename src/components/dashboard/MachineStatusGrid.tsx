@@ -5,75 +5,39 @@ import { ArrowRight, AlertTriangle } from 'lucide-react';
 import StatusIndicator from '../ui/StatusIndicator';
 import DashboardCard from './DashboardCard';
 import { cn } from '@/lib/utils';
-
-// Sample machine data
-const machines = [
-  { 
-    id: 1, 
-    name: 'CNC Mill A', 
-    status: 'online',
-    powerUsage: 45.2,
-    efficiency: 'high',
-    temperature: 72.5,
-    alerts: 0 
-  },
-  { 
-    id: 2, 
-    name: 'Packaging Line B', 
-    status: 'online',
-    powerUsage: 36.8,
-    efficiency: 'medium',
-    temperature: 68.3,
-    alerts: 0 
-  },
-  { 
-    id: 3, 
-    name: 'Assembly Robot C', 
-    status: 'idle',
-    powerUsage: 12.3,
-    efficiency: 'medium',
-    temperature: 65.2,
-    alerts: 0 
-  },
-  { 
-    id: 4, 
-    name: 'Injection Molder D', 
-    status: 'online',
-    powerUsage: 78.5,
-    efficiency: 'low',
-    temperature: 86.7,
-    alerts: 1 
-  },
-  { 
-    id: 5, 
-    name: 'Welding Robot E', 
-    status: 'maintenance',
-    powerUsage: 0,
-    efficiency: 'high',
-    temperature: 45.0,
-    alerts: 2 
-  },
-  { 
-    id: 6, 
-    name: 'Heat Treatment F', 
-    status: 'offline',
-    powerUsage: 0,
-    efficiency: 'medium',
-    temperature: 32.1,
-    alerts: 0 
-  },
-];
+import { MachineType } from '../machines/MachineData';
 
 interface MachineStatusGridProps {
   className?: string;
   limit?: number;
+  machines: MachineType[];
 }
 
-export default function MachineStatusGrid({ className, limit = 6 }: MachineStatusGridProps) {
+export default function MachineStatusGrid({ className, limit, machines = [] }: MachineStatusGridProps) {
   const displayedMachines = limit ? machines.slice(0, limit) : machines;
 
+  // Helper functions to map data
+  const getEfficiencyLevel = (efficiency: number): 'high' | 'medium' | 'low' => {
+    if (efficiency >= 90) return 'high';
+    if (efficiency >= 70) return 'medium';
+    return 'low';
+  };
+
+  const getAlertCount = (machine: MachineType): number => {
+    return machine.alerts ? machine.alerts.length : 0;
+  };
+
+  if (displayedMachines.length === 0) {
+    return (
+      <div className="text-center py-12 border rounded-lg">
+        <h3 className="text-lg font-medium text-muted-foreground">No machines found</h3>
+        <p className="text-sm text-muted-foreground mt-1">Try adjusting your search or filters</p>
+      </div>
+    );
+  }
+
   return (
-    <div className={cn("data-grid", className)}>
+    <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4", className)}>
       {displayedMachines.map((machine) => (
         <Link 
           key={machine.id} 
@@ -85,7 +49,7 @@ export default function MachineStatusGrid({ className, limit = 6 }: MachineStatu
             isHoverable={true}
             className={cn(
               "h-full",
-              machine.alerts > 0 && "border-warning/50"
+              getAlertCount(machine) > 0 && "border-warning/50"
             )}
             contentClassName="py-4"
           >
@@ -93,11 +57,11 @@ export default function MachineStatusGrid({ className, limit = 6 }: MachineStatu
               <div className="flex justify-between items-center">
                 <StatusIndicator status={machine.status} />
                 
-                {machine.alerts > 0 && (
+                {getAlertCount(machine) > 0 && (
                   <div className="flex items-center gap-1 text-warning">
                     <AlertTriangle size={16} />
                     <span className="text-sm font-medium">
-                      {machine.alerts} {machine.alerts === 1 ? 'alert' : 'alerts'}
+                      {getAlertCount(machine)} {getAlertCount(machine) === 1 ? 'alert' : 'alerts'}
                     </span>
                   </div>
                 )}
@@ -109,7 +73,7 @@ export default function MachineStatusGrid({ className, limit = 6 }: MachineStatu
                   <p className="font-medium">
                     {machine.status === 'offline' || machine.status === 'maintenance'
                       ? '—'
-                      : `${machine.powerUsage} kWh`}
+                      : `${machine.powerConsumption} kW`}
                   </p>
                 </div>
                 
@@ -119,12 +83,12 @@ export default function MachineStatusGrid({ className, limit = 6 }: MachineStatu
                     <span 
                       className={cn(
                         "inline-block h-2.5 w-2.5 rounded-full",
-                        machine.efficiency === 'high' && "bg-efficiency-high",
-                        machine.efficiency === 'medium' && "bg-efficiency-medium",
-                        machine.efficiency === 'low' && "bg-efficiency-low",
+                        getEfficiencyLevel(machine.efficiency) === 'high' && "bg-efficiency-high",
+                        getEfficiencyLevel(machine.efficiency) === 'medium' && "bg-efficiency-medium",
+                        getEfficiencyLevel(machine.efficiency) === 'low' && "bg-efficiency-low",
                       )} 
                     />
-                    <span className="capitalize">{machine.efficiency}</span>
+                    <span className="capitalize">{getEfficiencyLevel(machine.efficiency)}</span>
                   </div>
                 </div>
                 
@@ -133,7 +97,7 @@ export default function MachineStatusGrid({ className, limit = 6 }: MachineStatu
                   <p className="font-medium">
                     {machine.status === 'offline'
                       ? '—'
-                      : `${machine.temperature}°F`}
+                      : `${machine.temperature}°C`}
                   </p>
                 </div>
               </div>

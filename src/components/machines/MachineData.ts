@@ -41,7 +41,58 @@ export const machineData = {
     nextMaintenance: '2024-08-20',
     efficiency: 95.7,
     alerts: []
+  },
+  'm004': {
+    id: 'm004',
+    name: 'Laser Cutter #4',
+    type: 'Laser Cutter',
+    status: 'active',
+    powerConsumption: 4.7,
+    temperature: 48.3,
+    uptime: 91.2,
+    lastMaintenance: '2024-03-10',
+    nextMaintenance: '2024-09-10',
+    efficiency: 92.8,
+    alerts: []
+  },
+  'm005': {
+    id: 'm005',
+    name: 'Packaging Line #5',
+    type: 'Packaging',
+    status: 'active',
+    powerConsumption: 2.1,
+    temperature: 35.6,
+    uptime: 94.5,
+    lastMaintenance: '2024-01-25',
+    nextMaintenance: '2024-07-25',
+    efficiency: 88.3,
+    alerts: []
+  },
+  'm006': {
+    id: 'm006',
+    name: 'Conveyor System #6',
+    type: 'Conveyor',
+    status: 'offline',
+    powerConsumption: 0,
+    temperature: 22.0,
+    uptime: 76.4,
+    lastMaintenance: '2023-11-05',
+    nextMaintenance: '2024-05-05',
+    efficiency: 65.9,
+    alerts: [
+      { id: 'a2', message: 'Motor failure detected', severity: 'high', timestamp: '2024-05-08T09:15:00Z' },
+      { id: 'a3', message: 'Maintenance overdue', severity: 'medium', timestamp: '2024-05-05T00:00:00Z' }
+    ]
   }
 };
 
 export type MachineType = typeof machineData[keyof typeof machineData];
+
+export type MachineStatus = 'active' | 'idle' | 'maintenance' | 'offline';
+
+export type Alert = {
+  id: string;
+  message: string;
+  severity: 'low' | 'medium' | 'high';
+  timestamp: string;
+};
