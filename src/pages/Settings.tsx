@@ -1,10 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { SettingsSidebar } from '@/components/settings/SettingsLayout';
 import { SettingsContent } from '@/components/settings/SettingsContent';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Settings() {
+  const [activeTab, setActiveTab] = useState("profile");
+  const isMobile = useIsMobile();
+
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
   return (
     <Layout>
       <div className="space-y-8 animate-slide-up">
@@ -20,9 +29,8 @@ export default function Settings() {
         
         {/* Settings Content */}
         <div className="grid grid-cols-12 gap-8">
-          <SettingsSidebar defaultValue="profile" />
-          <SettingsContent defaultValue="profile" isMobile={false} />
-          <SettingsContent defaultValue="profile" isMobile={true} />
+          <SettingsSidebar defaultValue={activeTab} onValueChange={handleTabChange} />
+          <SettingsContent defaultValue={activeTab} isMobile={isMobile} />
         </div>
       </div>
     </Layout>

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { Tabs } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { ProfileSettings } from './ProfileSettings';
 import { SecuritySettings } from './SecuritySettings';
@@ -19,7 +19,7 @@ export function SettingsContent({ defaultValue = "profile", isMobile = false }: 
       {!isMobile && (
         <div className="col-span-12 md:col-span-9 hidden md:block">
           <Card>
-            <Tabs defaultValue={defaultValue}>
+            <Tabs defaultValue={defaultValue} value={defaultValue}>
               <ProfileSettings />
               <SecuritySettings />
               <NotificationSettings />
@@ -32,15 +32,15 @@ export function SettingsContent({ defaultValue = "profile", isMobile = false }: 
       
       {isMobile && (
         <div className="col-span-12 md:hidden">
-          <Tabs defaultValue={defaultValue}>
-            <Card>
+          <Card>
+            <Tabs defaultValue={defaultValue} value={defaultValue}>
               <ProfileSettings />
               <SecuritySettings />
               <NotificationSettings />
               <SystemSettings />
               <ConnectionsSettings />
-            </Card>
-          </Tabs>
+            </Tabs>
+          </Card>
         </div>
       )}
     </>

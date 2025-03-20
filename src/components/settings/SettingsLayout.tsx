@@ -11,12 +11,21 @@ import {
 
 interface SettingsSidebarProps {
   defaultValue?: string;
+  onValueChange?: (value: string) => void;
 }
 
-export function SettingsSidebar({ defaultValue = "profile" }: SettingsSidebarProps) {
+export function SettingsSidebar({ 
+  defaultValue = "profile", 
+  onValueChange 
+}: SettingsSidebarProps) {
   return (
     <div className="col-span-12 md:col-span-3 space-y-4">
-      <Tabs defaultValue={defaultValue} orientation="vertical" className="w-full">
+      <Tabs 
+        defaultValue={defaultValue} 
+        orientation="vertical" 
+        className="w-full"
+        onValueChange={onValueChange}
+      >
         <TabsList className="flex flex-col h-auto bg-background p-0 justify-start space-y-1">
           <TabsTrigger value="profile" className="w-full justify-start text-left px-3 py-2 data-[state=active]:bg-primary/10">
             <User className="mr-2 h-4 w-4" />
