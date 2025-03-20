@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Machines from "./pages/Machines";
 import Analytics from "./pages/Analytics";
+import AIInsights from "./pages/AIInsights";
+import Settings from "./pages/Settings";
+import MachineDetails from "./pages/MachineDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,11 +23,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/machines" element={<Machines />} />
+          <Route path="/machines/:id" element={<MachineDetails />} />
           <Route path="/analytics" element={<Analytics />} />
-          {/* Placeholder routes to be implemented later */}
-          <Route path="/ai-insights" element={<NotFound />} />
-          <Route path="/settings" element={<NotFound />} />
-          <Route path="/machines/:id" element={<NotFound />} />
+          <Route path="/ai-insights" element={<AIInsights />} />
+          <Route path="/settings" element={<Settings />} />
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
