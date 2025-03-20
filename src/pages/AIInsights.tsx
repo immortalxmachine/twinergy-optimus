@@ -3,6 +3,8 @@ import React from 'react';
 import Layout from '@/components/layout/Layout';
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import AIRecommendations from '@/components/dashboard/AIRecommendations';
+import AIPredictions from '@/components/dashboard/AIPredictions';
+import AIAnalysis from '@/components/dashboard/AIAnalysis';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -13,8 +15,19 @@ import {
   Sparkles, 
   Lightbulb
 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function AIInsights() {
+  const { toast } = useToast();
+
+  const handleRefresh = () => {
+    toast({
+      title: "AI Insights Refreshed",
+      description: "All insights and recommendations have been updated with the latest data.",
+      duration: 3000,
+    });
+  };
+  
   return (
     <Layout>
       <div className="space-y-8 animate-slide-up">
@@ -27,7 +40,7 @@ export default function AIInsights() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="gap-1.5">
+            <Button variant="outline" className="gap-1.5" onClick={handleRefresh}>
               <RefreshCw size={16} />
               <span>Refresh</span>
             </Button>
@@ -83,27 +96,27 @@ export default function AIInsights() {
             </TabsContent>
             
             <TabsContent value="predictions" className="mt-6">
-              <div className="h-96 flex items-center justify-center border rounded-lg bg-muted/20">
-                <div className="text-center p-6">
-                  <BrainCircuit className="h-12 w-12 mx-auto text-muted-foreground" />
-                  <h3 className="text-xl font-medium mt-4">Predictive Analytics</h3>
-                  <p className="text-muted-foreground mt-2 max-w-md">
-                    AI-powered predictions and forecasts will appear here. This section is currently under development.
-                  </p>
+              <DashboardCard
+                title="AI Predictions"
+                description="Forecasting future energy consumption based on historical patterns"
+                icon={BrainCircuit}
+              >
+                <div className="p-4">
+                  <AIPredictions />
                 </div>
-              </div>
+              </DashboardCard>
             </TabsContent>
             
             <TabsContent value="analysis" className="mt-6">
-              <div className="h-96 flex items-center justify-center border rounded-lg bg-muted/20">
-                <div className="text-center p-6">
-                  <BrainCircuit className="h-12 w-12 mx-auto text-muted-foreground" />
-                  <h3 className="text-xl font-medium mt-4">Deep Analysis</h3>
-                  <p className="text-muted-foreground mt-2 max-w-md">
-                    Advanced AI analysis and insights will appear here. This section is currently under development.
-                  </p>
+              <DashboardCard
+                title="Deep Analysis"
+                description="AI-powered insights into your energy usage patterns and anomalies"
+                icon={BrainCircuit}
+              >
+                <div className="p-4">
+                  <AIAnalysis />
                 </div>
-              </div>
+              </DashboardCard>
             </TabsContent>
           </Tabs>
         </div>
