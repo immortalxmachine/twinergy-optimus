@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { StatusIndicator } from '@/components/ui/StatusIndicator';
+import StatusIndicator from '@/components/ui/StatusIndicator';
 import { 
   ArrowLeft,
   Download,

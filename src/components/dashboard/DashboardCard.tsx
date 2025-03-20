@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { LucideIcon } from 'lucide-react';
 
 interface DashboardCardProps {
   title: string;
@@ -14,6 +15,7 @@ interface DashboardCardProps {
   footer?: React.ReactNode;
   isGlass?: boolean;
   isHoverable?: boolean;
+  icon?: LucideIcon;
 }
 
 export default function DashboardCard({
@@ -27,6 +29,7 @@ export default function DashboardCard({
   footer,
   isGlass = false,
   isHoverable = false,
+  icon: Icon,
 }: DashboardCardProps) {
   return (
     <Card 
@@ -38,7 +41,10 @@ export default function DashboardCard({
       )}
     >
       <CardHeader className={cn("pb-2", headerClassName)}>
-        {title && <CardTitle className="text-lg font-medium">{title}</CardTitle>}
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="h-5 w-5 text-primary/70" />}
+          {title && <CardTitle className="text-lg font-medium">{title}</CardTitle>}
+        </div>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent className={cn("pt-2", contentClassName)}>
