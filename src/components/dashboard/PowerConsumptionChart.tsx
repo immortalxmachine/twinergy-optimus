@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { ChevronDown } from 'lucide-react';
@@ -12,11 +12,52 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { 
-  generateHourlyData, 
-  generateDailyData,
-  generateMonthlyData
-} from '@/utils/mockDataGenerator';
+
+// Sample data
+const hourlyData = Array.from({ length: 24 }, (_, i) => ({
+  time: `${i}:00`,
+  current: Math.round(40 + Math.random() * 30),
+  predicted: Math.round(38 + Math.random() * 28),
+  optimized: Math.round(30 + Math.random() * 20),
+}));
+
+const dailyData = Array.from({ length: 7 }, (_, i) => {
+  const day = new Date();
+  day.setDate(day.getDate() - 6 + i);
+  return {
+    time: day.toLocaleDateString('en-US', { weekday: 'short' }),
+    current: Math.round(250 + Math.random() * 150),
+    predicted: Math.round(240 + Math.random() * 140),
+    optimized: Math.round(200 + Math.random() * 100),
+  };
+});
+
+const weeklyData = Array.from({ length: 4 }, (_, i) => {
+  return {
+    time: `Week ${i + 1}`,
+    current: Math.round(1200 + Math.random() * 600),
+    predicted: Math.round(1150 + Math.random() * 550),
+    optimized: Math.round(900 + Math.random() * 400),
+  };
+});
+
+const monthlyData = Array.from({ length: 12 }, (_, i) => {
+  const date = new Date();
+  date.setMonth(i);
+  return {
+    time: date.toLocaleDateString('en-US', { month: 'short' }),
+    current: Math.round(5000 + Math.random() * 2000),
+    predicted: Math.round(4800 + Math.random() * 1800),
+    optimized: Math.round(4000 + Math.random() * 1500),
+  };
+});
+
+const datasets = {
+  hourly: hourlyData,
+  daily: dailyData,
+  weekly: weeklyData,
+  monthly: monthlyData,
+};
 
 type TimeRange = 'hourly' | 'daily' | 'weekly' | 'monthly';
 
@@ -48,50 +89,17 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
 export default function PowerConsumptionChart({ className }: PowerConsumptionChartProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('daily');
-  const [data, setData] = useState<any[]>([]);
+  const data = datasets[timeRange];
   
-  useEffect(() => {
-    // Generate appropriate data based on selected time range
-    let newData;
-    switch (timeRange) {
-      case 'hourly':
-        newData = generateHourlyData(50, 10);
-        break;
-      case 'daily':
-        newData = generateDailyData(7, 300, 50);
-        break;
-      case 'weekly':
-        newData = Array.from({ length: 4 }, (_, i) => ({
-          time: `Week ${i + 1}`,
-          current: 1200 + Math.round(Math.random() * 600),
-          predicted: 1150 + Math.round(Math.random() * 550),
-          optimized: 900 + Math.round(Math.random() * 400),
-        }));
-        break;
-      case 'monthly':
-        newData = generateMonthlyData().map(item => ({
-          time: item.month,
-          current: item.current,
-          predicted: item.predicted,
-          optimized: item.optimized
-        }));
-        break;
-    }
-    setData(newData);
-  }, [timeRange]);
-  
-  // Calculate the Y-axis domain based on data
+  // Fixed the YAxis domain function to return the correct type
   const getYAxisDomain = () => {
-    if (!data.length) return [0, 100];
-    
     // Find min and max values across all data series
     let minValue = Number.MAX_VALUE;
     let maxValue = Number.MIN_VALUE;
     
     data.forEach(item => {
-      const values = [item.current, item.predicted, item.optimized].filter(v => v !== null);
-      const currentMin = Math.min(...values);
-      const currentMax = Math.max(...values);
+      const currentMin = Math.min(item.current, item.predicted, item.optimized);
+      const currentMax = Math.max(item.current, item.predicted, item.optimized);
       
       if (currentMin < minValue) minValue = currentMin;
       if (currentMax > maxValue) maxValue = currentMax;

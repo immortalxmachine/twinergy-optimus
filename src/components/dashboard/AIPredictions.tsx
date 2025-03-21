@@ -1,10 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Download, Calendar } from 'lucide-react';
-import { generatePredictionData } from '@/utils/mockDataGenerator';
+
+// Sample prediction data
+const predictionData = [
+  { month: 'Jul', actual: 48900, predicted: 49500, optimized: 42300 },
+  { month: 'Aug', actual: 50200, predicted: 51000, optimized: 43600 },
+  { month: 'Sep', actual: 49700, predicted: 50400, optimized: 42800 },
+  { month: 'Oct', actual: null, predicted: 52600, optimized: 44400 },
+  { month: 'Nov', actual: null, predicted: 53800, optimized: 45100 },
+  { month: 'Dec', actual: null, predicted: 55200, optimized: 45900 },
+];
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
@@ -32,45 +41,6 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
 };
 
 export default function AIPredictions() {
-  const [predictionData, setPredictionData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    // Simulate API call delay
-    setIsLoading(true);
-    setTimeout(() => {
-      setPredictionData(generatePredictionData());
-      setIsLoading(false);
-    }, 500);
-  }, []);
-  
-  // Calculate totals for the summary cards
-  const currentTotal = predictionData
-    .filter(d => d.actual === null)
-    .reduce((sum, d) => sum + d.predicted, 0);
-    
-  const optimizedTotal = predictionData
-    .filter(d => d.actual === null)
-    .reduce((sum, d) => sum + d.optimized, 0);
-    
-  const potentialSavings = Math.round((currentTotal - optimizedTotal) * 0.12 * 1000) / 1000;
-  const currentQuarter = `Q${Math.floor(new Date().getMonth() / 3) + 1} ${new Date().getFullYear()}`;
-  
-  const reductionPercentage = 
-    currentTotal > 0 
-      ? Math.round((currentTotal - optimizedTotal) / currentTotal * 1000) / 10 
-      : 0;
-
-  if (isLoading) {
-    return (
-      <div className="h-[400px] flex items-center justify-center">
-        <div className="animate-pulse text-center">
-          <p className="text-muted-foreground">Loading prediction data...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -83,7 +53,7 @@ export default function AIPredictions() {
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-1.5">
             <Calendar size={16} />
-            <span>{currentQuarter}</span>
+            <span>Q4 2023</span>
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5">
             <Download size={16} />
@@ -122,8 +92,8 @@ export default function AIPredictions() {
         <div className="border rounded-lg p-4">
           <h4 className="text-sm font-medium text-muted-foreground">Current Trajectory</h4>
           <div className="mt-2">
-            <p className="text-2xl font-bold">{currentTotal.toLocaleString()} kWh</p>
-            <p className="text-sm text-muted-foreground mt-1">{currentQuarter} predicted</p>
+            <p className="text-2xl font-bold">161,600 kWh</p>
+            <p className="text-sm text-muted-foreground mt-1">Q4 2023 predicted</p>
           </div>
           <p className="text-sm text-warning flex items-center mt-2">
             +4.2% vs. last quarter
@@ -133,19 +103,19 @@ export default function AIPredictions() {
         <div className="border rounded-lg p-4">
           <h4 className="text-sm font-medium text-muted-foreground">AI-Optimized Scenario</h4>
           <div className="mt-2">
-            <p className="text-2xl font-bold">{optimizedTotal.toLocaleString()} kWh</p>
-            <p className="text-sm text-muted-foreground mt-1">{currentQuarter} potential</p>
+            <p className="text-2xl font-bold">135,400 kWh</p>
+            <p className="text-sm text-muted-foreground mt-1">Q4 2023 potential</p>
           </div>
           <p className="text-sm text-success flex items-center mt-2">
-            -{reductionPercentage}% reduction potential
+            -16.2% reduction potential
           </p>
         </div>
         
         <div className="border rounded-lg p-4">
           <h4 className="text-sm font-medium text-muted-foreground">Potential Savings</h4>
           <div className="mt-2">
-            <p className="text-2xl font-bold">${potentialSavings.toLocaleString()}</p>
-            <p className="text-sm text-muted-foreground mt-1">{currentQuarter} estimated</p>
+            <p className="text-2xl font-bold">$5,240</p>
+            <p className="text-sm text-muted-foreground mt-1">Q4 2023 estimated</p>
           </div>
           <Button variant="link" className="px-0 text-sm h-auto flex items-center gap-1 mt-2">
             <span>View detailed breakdown</span>

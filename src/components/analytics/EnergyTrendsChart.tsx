@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   PieChart as PieChartIcon,
   BarChart as BarChartIcon,
@@ -21,19 +21,78 @@ import {
   Cell
 } from 'recharts';
 import { cn } from '@/lib/utils';
-import { 
-  generateDepartmentData,
-  generateHourlyData,
-  generateDailyData,
-  generateMonthlyData,
-  randomNumber
-} from '@/utils/mockDataGenerator';
 
 interface EnergyTrendsChartProps {
   className?: string;
   chartType: 'pie' | 'bar' | 'line';
   metric?: 'power' | 'efficiency' | 'cost' | 'cost-savings';
 }
+
+// Sample data for different chart types
+const pieData = [
+  { name: 'Assembly Line', value: 42, color: 'hsl(var(--primary))' },
+  { name: 'Heating & Cooling', value: 30, color: 'hsl(var(--info))' },
+  { name: 'Packaging Unit', value: 17, color: 'hsl(var(--success))' },
+  { name: 'Quality Control', value: 11, color: 'hsl(var(--warning))' },
+];
+
+const pieDataEfficiency = [
+  { name: 'Assembly Line', value: 68, color: 'hsl(var(--primary))' },
+  { name: 'Heating & Cooling', value: 62, color: 'hsl(var(--info))' },
+  { name: 'Packaging Unit', value: 76, color: 'hsl(var(--success))' },
+  { name: 'Quality Control', value: 82, color: 'hsl(var(--warning))' },
+];
+
+const pieDataCost = [
+  { name: 'Electricity', value: 65, color: 'hsl(var(--primary))' },
+  { name: 'Natural Gas', value: 25, color: 'hsl(var(--info))' },
+  { name: 'Water', value: 10, color: 'hsl(var(--success))' },
+];
+
+const barData = [
+  { time: '06:00', consumption: 45 },
+  { time: '08:00', consumption: 85 },
+  { time: '10:00', consumption: 90 },
+  { time: '12:00', consumption: 70 },
+  { time: '14:00', consumption: 95 },
+  { time: '16:00', consumption: 80 },
+  { time: '18:00', consumption: 60 },
+  { time: '20:00', consumption: 40 },
+];
+
+const barDataEfficiency = [
+  { department: 'Assembly', efficiency: 68 },
+  { department: 'Heating', efficiency: 62 },
+  { department: 'Packaging', efficiency: 76 },
+  { department: 'Quality', efficiency: 82 },
+];
+
+const lineData = [
+  { month: 'Jan', current: 420, optimized: 380 },
+  { month: 'Feb', current: 380, optimized: 340 },
+  { month: 'Mar', current: 450, optimized: 390 },
+  { month: 'Apr', current: 470, optimized: 410 },
+  { month: 'May', current: 500, optimized: 430 },
+  { month: 'Jun', current: 520, optimized: 450 },
+];
+
+const lineDataEfficiency = [
+  { month: 'Jan', efficiency: 60 },
+  { month: 'Feb', efficiency: 62 },
+  { month: 'Mar', efficiency: 65 },
+  { month: 'Apr', efficiency: 70 },
+  { month: 'May', efficiency: 72 },
+  { month: 'Jun', efficiency: 75 },
+];
+
+const lineDataCostSavings = [
+  { month: 'Jan', savings: 2100 },
+  { month: 'Feb', savings: 2300 },
+  { month: 'Mar', savings: 2450 },
+  { month: 'Apr', savings: 2600 },
+  { month: 'May', savings: 2850 },
+  { month: 'Jun', savings: 3050 },
+];
 
 // Simple tooltip component
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -53,85 +112,29 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function EnergyTrendsChart({ className, chartType, metric = 'power' }: EnergyTrendsChartProps) {
-  const [data, setData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    setIsLoading(true);
-    
-    // Generate data based on chart type and metric
-    setTimeout(() => {
-      let newData;
-      if (chartType === 'pie') {
-        if (metric === 'efficiency') {
-          newData = generateDepartmentData(4);
-        } else if (metric === 'cost') {
-          newData = [
-            { name: 'Electricity', value: randomNumber(55, 65), color: 'hsl(var(--primary))' },
-            { name: 'Natural Gas', value: randomNumber(20, 30), color: 'hsl(var(--info))' },
-            { name: 'Water', value: randomNumber(5, 15), color: 'hsl(var(--success))' },
-          ];
-        } else {
-          newData = generateDepartmentData(4);
-        }
-      } else if (chartType === 'bar') {
-        if (metric === 'efficiency') {
-          newData = [
-            { department: 'Assembly', efficiency: randomNumber(60, 75) },
-            { department: 'Heating', efficiency: randomNumber(55, 70) },
-            { department: 'Packaging', efficiency: randomNumber(70, 85) },
-            { department: 'Quality', efficiency: randomNumber(75, 90) },
-          ];
-        } else {
-          newData = generateHourlyData(50, 15, false).filter((_, i) => i % 3 === 0).map(item => ({
-            time: item.time,
-            consumption: item.current
-          }));
-        }
-      } else if (chartType === 'line') {
-        if (metric === 'efficiency') {
-          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-          const startEff = randomNumber(55, 65);
-          newData = months.map((month, i) => ({
-            month,
-            efficiency: Math.round(startEff + (i * randomNumber(2, 4)))
-          }));
-        } else if (metric === 'cost-savings') {
-          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-          const startSavings = randomNumber(1800, 2200);
-          const growth = randomNumber(150, 250);
-          newData = months.map((month, i) => ({
-            month,
-            savings: Math.round(startSavings + (i * growth) + randomNumber(-100, 100))
-          }));
-        } else {
-          const monthlyData = generateMonthlyData();
-          newData = monthlyData.slice(0, 6).map(item => ({
-            month: item.month,
-            current: item.current,
-            optimized: item.optimized
-          }));
-        }
-      }
-      
-      setData(newData);
-      setIsLoading(false);
-    }, 500);
-  }, [chartType, metric]);
-  
-  const COLORS = [
-    'hsl(var(--primary))', 
-    'hsl(var(--warning))', 
-    'hsl(var(--success))',
-    'hsl(var(--info))',
-    'hsl(var(--destructive))'
-  ];
-  
+  // Decide which data to use based on metric
+  const getPieData = () => {
+    if (metric === 'efficiency') return pieDataEfficiency;
+    if (metric === 'cost') return pieDataCost;
+    return pieData;
+  };
+
+  const getBarData = () => {
+    if (metric === 'efficiency') return barDataEfficiency;
+    return barData;
+  };
+
+  const getLineData = () => {
+    if (metric === 'efficiency') return lineDataEfficiency;
+    if (metric === 'cost-savings') return lineDataCostSavings;
+    return lineData;
+  };
+
   const renderPieChart = () => (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
         <Pie
-          data={data}
+          data={getPieData()}
           cx="50%"
           cy="50%"
           innerRadius={70}
@@ -141,8 +144,8 @@ export default function EnergyTrendsChart({ className, chartType, metric = 'powe
           label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
           labelLine={false}
         >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+          {getPieData().map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
         <Tooltip content={<CustomTooltip />} />
@@ -153,7 +156,7 @@ export default function EnergyTrendsChart({ className, chartType, metric = 'powe
 
   const renderBarChart = () => (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data}>
+      <BarChart data={getBarData()}>
         <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
         <XAxis 
           dataKey={metric === 'efficiency' ? 'department' : 'time'} 
@@ -180,7 +183,7 @@ export default function EnergyTrendsChart({ className, chartType, metric = 'powe
 
   const renderLineChart = () => (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data}>
+      <LineChart data={getLineData()}>
         <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
         <XAxis dataKey="month" tick={{ fontSize: 12 }} />
         <YAxis 
@@ -237,25 +240,21 @@ export default function EnergyTrendsChart({ className, chartType, metric = 'powe
     </ResponsiveContainer>
   );
 
-  // Placeholder when chart is loading
-  const renderPlaceholder = () => (
+  // Placeholder when chart is loading or there's an error
+  const renderPlaceholder = (Icon: any) => (
     <div className="h-full flex items-center justify-center">
-      <div className="animate-pulse text-center">
-        <div className="h-12 w-12 mx-auto rounded-full bg-muted"></div>
-        <p className="mt-2 text-muted-foreground">Loading chart data...</p>
+      <div className="text-center">
+        <Icon className="h-12 w-12 mx-auto text-muted-foreground/40" />
+        <p className="mt-2 text-muted-foreground">Chart data loading...</p>
       </div>
     </div>
   );
 
   return (
     <div className={cn("h-[320px] p-4", className)}>
-      {isLoading ? renderPlaceholder() : (
-        <>
-          {chartType === 'pie' && renderPieChart()}
-          {chartType === 'bar' && renderBarChart()}
-          {chartType === 'line' && renderLineChart()}
-        </>
-      )}
+      {chartType === 'pie' && renderPieChart()}
+      {chartType === 'bar' && renderBarChart()}
+      {chartType === 'line' && renderLineChart()}
     </div>
   );
 }
