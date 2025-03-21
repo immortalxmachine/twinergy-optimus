@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart as BarChartIcon, 
   DollarSign,
@@ -25,29 +25,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import DashboardCard from '@/components/dashboard/DashboardCard';
-
-// Sample data
-const monthlyData = [
-  { month: 'Jan', energyCost: 12400, projectedCost: 12400, savings: 0 },
-  { month: 'Feb', energyCost: 11800, projectedCost: 11800, savings: 0 },
-  { month: 'Mar', energyCost: 12200, projectedCost: 12200, savings: 0 },
-  { month: 'Apr', energyCost: 13100, projectedCost: 13100, savings: 0 },
-  { month: 'May', energyCost: 13600, projectedCost: 13600, savings: 0 },
-  { month: 'Jun', energyCost: 14100, projectedCost: 13300, savings: 800 },
-  { month: 'Jul', energyCost: 14600, projectedCost: 13100, savings: 1500 },
-  { month: 'Aug', energyCost: 14800, projectedCost: 12900, savings: 1900 },
-  { month: 'Sep', energyCost: 14400, projectedCost: 12100, savings: 2300 },
-  { month: 'Oct', energyCost: 13900, projectedCost: 11300, savings: 2600 },
-  { month: 'Nov', energyCost: 13200, projectedCost: 10400, savings: 2800 },
-  { month: 'Dec', energyCost: 12800, projectedCost: 9800, savings: 3000 },
-];
-
-const quarterlyData = [
-  { quarter: 'Q1', energyCost: 36400, projectedCost: 36400, savings: 0 },
-  { quarter: 'Q2', energyCost: 40800, projectedCost: 39400, savings: 1400 },
-  { quarter: 'Q3', energyCost: 43800, projectedCost: 38100, savings: 5700 },
-  { quarter: 'Q4', energyCost: 39900, projectedCost: 31500, savings: 8400 },
-];
+import { generateMonthlyData, generateQuarterlyData } from '@/utils/mockDataGenerator';
 
 type TimeRange = 'monthly' | 'quarterly';
 
@@ -85,9 +63,39 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function CostAnalysisChart() {
   const [timeRange, setTimeRange] = useState<TimeRange>('monthly');
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [annualSavings, setAnnualSavings] = useState(0);
   
-  // Select data based on time range
-  const data = timeRange === 'monthly' ? monthlyData : quarterlyData;
+  useEffect(() => {
+    setIsLoading(true);
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      let newData;
+      if (timeRange === 'monthly') {
+        newData = generateMonthlyData().map(item => ({
+          month: item.month,
+          energyCost: item.energyCost,
+          projectedCost: item.projectedCost,
+          savings: item.savings
+        }));
+        
+        // Calculate annual savings
+        const totalSavings = newData.reduce((sum, item) => sum + item.savings, 0);
+        setAnnualSavings(totalSavings);
+      } else {
+        newData = generateQuarterlyData();
+        
+        // Calculate annual savings
+        const totalSavings = newData.reduce((sum, item) => sum + item.savings, 0);
+        setAnnualSavings(totalSavings);
+      }
+      
+      setData(newData);
+      setIsLoading(false);
+    }, 500);
+  }, [timeRange]);
   
   return (
     <DashboardCard
@@ -127,49 +135,57 @@ export default function CostAnalysisChart() {
           </div>
         </div>
         
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-              <XAxis 
-                dataKey={timeRange === 'monthly' ? 'month' : 'quarter'} 
-                tick={{ fontSize: 12 }}
-              />
-              <YAxis 
-                yAxisId="left"
-                tick={{ fontSize: 12 }}
-                width={65}
-                tickFormatter={(value) => `$${value / 1000}k`}
-                label={{ 
-                  value: 'Cost ($)', 
-                  angle: -90, 
-                  position: 'insideLeft',
-                  style: { textAnchor: 'middle', fontSize: 12, opacity: 0.7 }
-                }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Bar 
-                yAxisId="left"
-                dataKey="energyCost" 
-                name="Actual Cost" 
-                fill="hsl(var(--primary))" 
-                radius={[4, 4, 0, 0]} 
-                fillOpacity={0.8}
-                barSize={timeRange === 'monthly' ? 15 : 30}
-              />
-              <Line 
-                yAxisId="left"
-                type="monotone" 
-                dataKey="projectedCost" 
-                name="Projected with Optimization" 
-                stroke="hsl(var(--success))" 
-                strokeWidth={2}
-                dot={{ stroke: 'hsl(var(--success))', fill: 'white', strokeWidth: 2, r: 4 }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+        {isLoading ? (
+          <div className="h-[400px] flex items-center justify-center">
+            <div className="animate-pulse text-center">
+              <p className="text-muted-foreground">Loading cost analysis data...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                <XAxis 
+                  dataKey={timeRange === 'monthly' ? 'month' : 'quarter'} 
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  yAxisId="left"
+                  tick={{ fontSize: 12 }}
+                  width={65}
+                  tickFormatter={(value) => `$${value / 1000}k`}
+                  label={{ 
+                    value: 'Cost ($)', 
+                    angle: -90, 
+                    position: 'insideLeft',
+                    style: { textAnchor: 'middle', fontSize: 12, opacity: 0.7 }
+                  }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar 
+                  yAxisId="left"
+                  dataKey="energyCost" 
+                  name="Actual Cost" 
+                  fill="hsl(var(--primary))" 
+                  radius={[4, 4, 0, 0]} 
+                  fillOpacity={0.8}
+                  barSize={timeRange === 'monthly' ? 15 : 30}
+                />
+                <Line 
+                  yAxisId="left"
+                  type="monotone" 
+                  dataKey="projectedCost" 
+                  name="Projected with Optimization" 
+                  stroke="hsl(var(--success))" 
+                  strokeWidth={2}
+                  dot={{ stroke: 'hsl(var(--success))', fill: 'white', strokeWidth: 2, r: 4 }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        )}
         
         <div className="mt-4 pt-4 border-t">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -179,7 +195,7 @@ export default function CostAnalysisChart() {
               </p>
             </div>
             <div className="text-right mt-2 sm:mt-0">
-              <p className="text-2xl font-bold text-success">$15,500</p>
+              <p className="text-2xl font-bold text-success">${annualSavings.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">Based on current implementation progress</p>
             </div>
           </div>
