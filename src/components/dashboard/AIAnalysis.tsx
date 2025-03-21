@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -13,47 +13,11 @@ import {
   PieChart, Pie, Cell, 
   Legend
 } from 'recharts';
-
-// Sample data for anomaly detection
-const anomalyData = [
-  { time: '00:00', value: 42, normal: true },
-  { time: '02:00', value: 38, normal: true },
-  { time: '04:00', value: 35, normal: true },
-  { time: '06:00', value: 37, normal: true },
-  { time: '08:00', value: 68, normal: true },
-  { time: '10:00', value: 72, normal: true },
-  { time: '12:00', value: 95, normal: false },
-  { time: '14:00', value: 75, normal: true },
-  { time: '16:00', value: 71, normal: true },
-  { time: '18:00', value: 66, normal: true },
-  { time: '20:00', value: 48, normal: true },
-  { time: '22:00', value: 45, normal: true },
-];
-
-// Sample data for correlation analysis
-const correlationData = [
-  { hour: '00:00', temperature: 21, consumption: 42 },
-  { hour: '02:00', temperature: 20, consumption: 38 },
-  { hour: '04:00', temperature: 19, consumption: 35 },
-  { hour: '06:00', temperature: 20, consumption: 37 },
-  { hour: '08:00', temperature: 23, consumption: 68 },
-  { hour: '10:00', temperature: 25, consumption: 72 },
-  { hour: '12:00', temperature: 27, consumption: 75 },
-  { hour: '14:00', temperature: 26, consumption: 73 },
-  { hour: '16:00', temperature: 25, consumption: 71 },
-  { hour: '18:00', temperature: 24, consumption: 66 },
-  { hour: '20:00', temperature: 22, consumption: 48 },
-  { hour: '22:00', temperature: 21, consumption: 45 },
-];
-
-// Sample data for feature importance
-const featureImportanceData = [
-  { name: 'Operating Hours', value: 35 },
-  { name: 'Ambient Temperature', value: 25 },
-  { name: 'Production Volume', value: 20 },
-  { name: 'Machine Age', value: 12 },
-  { name: 'Maintenance Frequency', value: 8 },
-];
+import { 
+  generateAnomalyData, 
+  generateCorrelationData,
+  generateFeatureImportanceData
+} from '@/utils/mockDataGenerator';
 
 const COLORS = [
   'hsl(var(--primary))', 
@@ -64,9 +28,46 @@ const COLORS = [
 ];
 
 export default function AIAnalysis() {
+  // State for the data of each tab
+  const [anomalyData, setAnomalyData] = useState<any[]>([]);
+  const [correlationData, setCorrelationData] = useState<any[]>([]);
+  const [featureImportanceData, setFeatureImportanceData] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState('anomalies');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load data for the active tab
+  useEffect(() => {
+    setIsLoading(true);
+    
+    const timer = setTimeout(() => {
+      if (activeTab === 'anomalies' && anomalyData.length === 0) {
+        setAnomalyData(generateAnomalyData());
+      } else if (activeTab === 'correlations' && correlationData.length === 0) {
+        setCorrelationData(generateCorrelationData());
+      } else if (activeTab === 'importance' && featureImportanceData.length === 0) {
+        setFeatureImportanceData(generateFeatureImportanceData());
+      }
+      setIsLoading(false);
+    }, 600);
+    
+    return () => clearTimeout(timer);
+  }, [activeTab]);
+
+  // Get the anomaly point from the data
+  const getAnomalyPoint = () => {
+    if (anomalyData.length === 0) return null;
+    return anomalyData.find(point => !point.normal);
+  };
+
+  const anomalyPoint = getAnomalyPoint();
+
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="anomalies">
+      <Tabs 
+        defaultValue="anomalies" 
+        value={activeTab}
+        onValueChange={setActiveTab}
+      >
         <TabsList className="w-full sm:w-auto grid grid-cols-3 sm:inline-flex">
           <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
           <TabsTrigger value="correlations">Correlations</TabsTrigger>
@@ -115,8 +116,8 @@ export default function AIAnalysis() {
                         return (
                           <g key={index}>
                             <circle
-                              cx={index * (100 / (anomalyData.length - 1)) + '%'}
-                              cy={(100 - ((entry.value / 100) * 100)) + '%'}
+                              cx={`${(index / (anomalyData.length - 1)) * 100}%`}
+                              cy={`${100 - ((entry.value / 100) * 100)}%`}
                               r={6}
                               fill="hsl(var(--destructive))"
                               stroke="white"
@@ -131,27 +132,30 @@ export default function AIAnalysis() {
                 </ResponsiveContainer>
               </div>
               
-              <div className="bg-muted/30 p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <div className="h-6 w-6 rounded-full bg-destructive/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <span className="text-destructive text-xs">!</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Anomaly Detected at 12:00</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Power consumption exceeded expected range by 35%. This may indicate equipment malfunction or unauthorized usage.
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
-                        Unusual Spike
-                      </Badge>
-                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                        Assembly Line
-                      </Badge>
+              {anomalyPoint && (
+                <div className="bg-muted/30 p-4 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="h-6 w-6 rounded-full bg-destructive/20 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-destructive text-xs">!</span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Anomaly Detected at {anomalyPoint.time}</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Power consumption exceeded expected range by {Math.round((anomalyPoint.value / 70 - 1) * 100)}%. 
+                        This may indicate equipment malfunction or unauthorized usage.
+                      </p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
+                          Unusual Spike
+                        </Badge>
+                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                          Assembly Line
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </Card>
         </TabsContent>
@@ -270,33 +274,23 @@ export default function AIAnalysis() {
               <div className="space-y-4">
                 <h4 className="font-medium">Key Insights</h4>
                 <ul className="space-y-3">
-                  <li className="flex items-start gap-3">
-                    <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-primary text-xs">1</span>
-                    </div>
-                    <p className="text-sm">
-                      <span className="font-medium">Operating Hours</span> is the most significant factor (35%), 
-                      suggesting schedule optimization could yield substantial savings.
-                    </p>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="h-5 w-5 rounded-full bg-warning/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-warning text-xs">2</span>
-                    </div>
-                    <p className="text-sm">
-                      <span className="font-medium">Ambient Temperature</span> accounts for 25% of energy consumption variability, 
-                      confirming the strong correlation shown in the previous analysis.
-                    </p>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <div className="h-5 w-5 rounded-full bg-success/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-success text-xs">3</span>
-                    </div>
-                    <p className="text-sm">
-                      <span className="font-medium">Production Volume</span> (20%) shows that energy consumption scales with output, 
-                      but efficiency improvements are possible during low-volume periods.
-                    </p>
-                  </li>
+                  {featureImportanceData.slice(0, 3).map((feature, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <div className="h-5 w-5 rounded-full" 
+                           style={{ backgroundColor: `${COLORS[index]}/20` }}
+                           className="flex items-center justify-center shrink-0 mt-0.5">
+                        <span style={{ color: COLORS[index] }} className="text-xs">{index + 1}</span>
+                      </div>
+                      <p className="text-sm">
+                        <span className="font-medium">{feature.name}</span> is 
+                        {index === 0 ? " the most significant factor" : " an important factor"} 
+                        ({feature.value}%), 
+                        {index === 0 && " suggesting schedule optimization could yield substantial savings."}
+                        {index === 1 && " confirming the strong correlation shown in the previous analysis."}
+                        {index === 2 && " showing that energy consumption scales with output, but efficiency improvements are possible during low-volume periods."}
+                      </p>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

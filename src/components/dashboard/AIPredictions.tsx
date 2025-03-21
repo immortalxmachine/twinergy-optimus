@@ -1,19 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Download, Calendar } from 'lucide-react';
-
-// Sample prediction data
-const predictionData = [
-  { month: 'Jul', actual: 48900, predicted: 49500, optimized: 42300 },
-  { month: 'Aug', actual: 50200, predicted: 51000, optimized: 43600 },
-  { month: 'Sep', actual: 49700, predicted: 50400, optimized: 42800 },
-  { month: 'Oct', actual: null, predicted: 52600, optimized: 44400 },
-  { month: 'Nov', actual: null, predicted: 53800, optimized: 45100 },
-  { month: 'Dec', actual: null, predicted: 55200, optimized: 45900 },
-];
+import { ArrowRight, Download, Calendar, RefreshCw } from 'lucide-react';
+import { generatePredictionData } from '@/utils/mockDataGenerator';
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
@@ -41,6 +32,57 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
 };
 
 export default function AIPredictions() {
+  const [predictionData, setPredictionData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Calculate summary values
+  const getTotals = () => {
+    if (predictionData.length === 0) return { predicted: 0, optimized: 0, savings: 0 };
+    
+    const predictedTotal = predictionData.reduce((sum, item) => {
+      return sum + (item.predicted || 0);
+    }, 0);
+    
+    const optimizedTotal = predictionData.reduce((sum, item) => {
+      return sum + (item.optimized || 0);
+    }, 0);
+    
+    const savings = predictedTotal - optimizedTotal;
+    const savingsPercent = ((savings / predictedTotal) * 100).toFixed(1);
+    
+    return {
+      predicted: predictedTotal,
+      optimized: optimizedTotal,
+      savings,
+      savingsPercent
+    };
+  };
+  
+  // Load initial data
+  useEffect(() => {
+    setIsLoading(true);
+    
+    const timer = setTimeout(() => {
+      setPredictionData(generatePredictionData());
+      setIsLoading(false);
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Function to refresh data with new simulated values
+  const refreshData = () => {
+    setIsRefreshing(true);
+    
+    setTimeout(() => {
+      setPredictionData(generatePredictionData());
+      setIsRefreshing(false);
+    }, 800);
+  };
+  
+  const totals = getTotals();
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -51,6 +93,16 @@ export default function AIPredictions() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-1.5"
+            onClick={refreshData}
+            disabled={isRefreshing}
+          >
+            <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
+            <span>{isRefreshing ? "Updating..." : "Refresh"}</span>
+          </Button>
           <Button variant="outline" size="sm" className="gap-1.5">
             <Calendar size={16} />
             <span>Q4 2023</span>
@@ -76,7 +128,12 @@ export default function AIPredictions() {
         </div>
 
         <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={predictionData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <BarChart 
+            data={predictionData} 
+            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            barGap={8}
+            barSize={24}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
             <YAxis stroke="hsl(var(--foreground))" />
@@ -92,7 +149,7 @@ export default function AIPredictions() {
         <div className="border rounded-lg p-4">
           <h4 className="text-sm font-medium text-muted-foreground">Current Trajectory</h4>
           <div className="mt-2">
-            <p className="text-2xl font-bold">161,600 kWh</p>
+            <p className="text-2xl font-bold">{totals.predicted.toLocaleString()} kWh</p>
             <p className="text-sm text-muted-foreground mt-1">Q4 2023 predicted</p>
           </div>
           <p className="text-sm text-warning flex items-center mt-2">
@@ -103,18 +160,18 @@ export default function AIPredictions() {
         <div className="border rounded-lg p-4">
           <h4 className="text-sm font-medium text-muted-foreground">AI-Optimized Scenario</h4>
           <div className="mt-2">
-            <p className="text-2xl font-bold">135,400 kWh</p>
+            <p className="text-2xl font-bold">{totals.optimized.toLocaleString()} kWh</p>
             <p className="text-sm text-muted-foreground mt-1">Q4 2023 potential</p>
           </div>
           <p className="text-sm text-success flex items-center mt-2">
-            -16.2% reduction potential
+            -{totals.savingsPercent}% reduction potential
           </p>
         </div>
         
         <div className="border rounded-lg p-4">
           <h4 className="text-sm font-medium text-muted-foreground">Potential Savings</h4>
           <div className="mt-2">
-            <p className="text-2xl font-bold">$5,240</p>
+            <p className="text-2xl font-bold">${Math.round(totals.savings * 0.12).toLocaleString()}</p>
             <p className="text-sm text-muted-foreground mt-1">Q4 2023 estimated</p>
           </div>
           <Button variant="link" className="px-0 text-sm h-auto flex items-center gap-1 mt-2">

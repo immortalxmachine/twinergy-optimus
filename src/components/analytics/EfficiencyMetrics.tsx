@@ -1,45 +1,86 @@
 
-import React, { useState } from 'react';
-import { Gauge, ArrowRight, ArrowUpRight, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Gauge, ArrowRight, ArrowUpRight, Calendar, RefreshCw } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardCard from '@/components/dashboard/DashboardCard';
+import { generateDepartmentEfficiency, getRandomNumber } from '@/utils/mockDataGenerator';
 
 export default function EfficiencyMetrics() {
   const [timeframe, setTimeframe] = useState('current');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
-  const timeframeData = {
-    'current': {
-      overall: 72,
-      trend: '+2.8%',
-      departments: [
-        { name: 'Assembly Line', efficiency: 68, trend: '+3.2%', color: 'bg-primary/80' },
-        { name: 'Packaging Unit', efficiency: 76, trend: '+1.8%', color: 'bg-success/80' },
-        { name: 'Heating & Cooling', efficiency: 62, trend: '+4.5%', color: 'bg-warning/80' },
-        { name: 'Quality Control', efficiency: 82, trend: '+0.9%', color: 'bg-info/80' },
-      ]
-    },
-    'previous': {
-      overall: 69,
-      trend: '+1.5%',
-      departments: [
-        { name: 'Assembly Line', efficiency: 65, trend: '+2.1%', color: 'bg-primary/80' },
-        { name: 'Packaging Unit', efficiency: 74, trend: '+0.8%', color: 'bg-success/80' },
-        { name: 'Heating & Cooling', efficiency: 58, trend: '+2.2%', color: 'bg-warning/80' },
-        { name: 'Quality Control', efficiency: 81, trend: '+0.5%', color: 'bg-info/80' },
-      ]
-    },
-    'target': {
-      overall: 80,
-      trend: '+8.0%',
-      departments: [
-        { name: 'Assembly Line', efficiency: 78, trend: '+10.0%', color: 'bg-primary/80' },
-        { name: 'Packaging Unit', efficiency: 85, trend: '+9.0%', color: 'bg-success/80' },
-        { name: 'Heating & Cooling', efficiency: 75, trend: '+13.0%', color: 'bg-warning/80' },
-        { name: 'Quality Control', efficiency: 90, trend: '+8.0%', color: 'bg-info/80' },
-      ]
-    }
+  // State for the different timeframes
+  const [timeframeData, setTimeframeData] = useState<any>({
+    'current': { overall: 0, trend: '', departments: [] },
+    'previous': { overall: 0, trend: '', departments: [] },
+    'target': { overall: 0, trend: '', departments: [] }
+  });
+  
+  // Generate data for each timeframe
+  useEffect(() => {
+    setIsLoading(true);
+    
+    const timer = setTimeout(() => {
+      const currentOverall = getRandomNumber(68, 76, 1);
+      const previousOverall = currentOverall - getRandomNumber(2, 5, 1);
+      const targetOverall = Math.min(95, currentOverall + getRandomNumber(8, 12, 1));
+      
+      setTimeframeData({
+        'current': {
+          overall: currentOverall,
+          trend: `+${getRandomNumber(1.5, 3.5, 1)}%`,
+          departments: generateDepartmentEfficiency(currentOverall)
+        },
+        'previous': {
+          overall: previousOverall,
+          trend: `+${getRandomNumber(0.8, 2.0, 1)}%`,
+          departments: generateDepartmentEfficiency(previousOverall)
+        },
+        'target': {
+          overall: targetOverall,
+          trend: `+${getRandomNumber(6, 10, 1)}%`,
+          departments: generateDepartmentEfficiency(targetOverall)
+        }
+      });
+      
+      setIsLoading(false);
+    }, 600);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Refresh data
+  const refreshData = () => {
+    setIsRefreshing(true);
+    
+    setTimeout(() => {
+      const currentOverall = getRandomNumber(68, 76, 1);
+      const previousOverall = currentOverall - getRandomNumber(2, 5, 1);
+      const targetOverall = Math.min(95, currentOverall + getRandomNumber(8, 12, 1));
+      
+      setTimeframeData({
+        'current': {
+          overall: currentOverall,
+          trend: `+${getRandomNumber(1.5, 3.5, 1)}%`,
+          departments: generateDepartmentEfficiency(currentOverall)
+        },
+        'previous': {
+          overall: previousOverall,
+          trend: `+${getRandomNumber(0.8, 2.0, 1)}%`,
+          departments: generateDepartmentEfficiency(previousOverall)
+        },
+        'target': {
+          overall: targetOverall,
+          trend: `+${getRandomNumber(6, 10, 1)}%`,
+          departments: generateDepartmentEfficiency(targetOverall)
+        }
+      });
+      
+      setIsRefreshing(false);
+    }, 600);
   };
   
   const currentData = timeframeData[timeframe as keyof typeof timeframeData];
@@ -63,7 +104,17 @@ export default function EfficiencyMetrics() {
       description="Current operational efficiency across all departments"
       icon={Gauge}
       footer={
-        <div className="flex justify-end px-4 py-2 border-t">
+        <div className="flex justify-between px-4 py-2 border-t">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-1.5"
+            onClick={refreshData}
+            disabled={isRefreshing}
+          >
+            <RefreshCw size={16} className={isRefreshing ? "animate-spin" : ""} />
+            <span>{isRefreshing ? "Updating..." : "Refresh Data"}</span>
+          </Button>
           <Button variant="link" className="gap-1.5 text-sm h-auto">
             <span>View detailed metrics</span>
             <ArrowRight size={14} />
@@ -127,7 +178,7 @@ export default function EfficiencyMetrics() {
 
           {/* Department Efficiency Metrics */}
           <div className="space-y-4">
-            {currentData.departments.map((dept, index) => (
+            {currentData.departments.map((dept: any, index: number) => (
               <div key={index} className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">{dept.name}</span>

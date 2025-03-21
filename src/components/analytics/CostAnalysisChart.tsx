@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  BarChart as BarChartIcon, 
+  BarChartIcon, 
   DollarSign,
-  ChevronDown
+  ChevronDown,
+  RefreshCw
 } from 'lucide-react';
 import {
   ComposedChart,
@@ -25,29 +26,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import DashboardCard from '@/components/dashboard/DashboardCard';
-
-// Sample data
-const monthlyData = [
-  { month: 'Jan', energyCost: 12400, projectedCost: 12400, savings: 0 },
-  { month: 'Feb', energyCost: 11800, projectedCost: 11800, savings: 0 },
-  { month: 'Mar', energyCost: 12200, projectedCost: 12200, savings: 0 },
-  { month: 'Apr', energyCost: 13100, projectedCost: 13100, savings: 0 },
-  { month: 'May', energyCost: 13600, projectedCost: 13600, savings: 0 },
-  { month: 'Jun', energyCost: 14100, projectedCost: 13300, savings: 800 },
-  { month: 'Jul', energyCost: 14600, projectedCost: 13100, savings: 1500 },
-  { month: 'Aug', energyCost: 14800, projectedCost: 12900, savings: 1900 },
-  { month: 'Sep', energyCost: 14400, projectedCost: 12100, savings: 2300 },
-  { month: 'Oct', energyCost: 13900, projectedCost: 11300, savings: 2600 },
-  { month: 'Nov', energyCost: 13200, projectedCost: 10400, savings: 2800 },
-  { month: 'Dec', energyCost: 12800, projectedCost: 9800, savings: 3000 },
-];
-
-const quarterlyData = [
-  { quarter: 'Q1', energyCost: 36400, projectedCost: 36400, savings: 0 },
-  { quarter: 'Q2', energyCost: 40800, projectedCost: 39400, savings: 1400 },
-  { quarter: 'Q3', energyCost: 43800, projectedCost: 38100, savings: 5700 },
-  { quarter: 'Q4', energyCost: 39900, projectedCost: 31500, savings: 8400 },
-];
+import { generateCostData } from '@/utils/mockDataGenerator';
 
 type TimeRange = 'monthly' | 'quarterly';
 
@@ -85,9 +64,117 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function CostAnalysisChart() {
   const [timeRange, setTimeRange] = useState<TimeRange>('monthly');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [data, setData] = useState<any[]>([]);
   
-  // Select data based on time range
-  const data = timeRange === 'monthly' ? monthlyData : quarterlyData;
+  // Load initial data
+  useEffect(() => {
+    setIsLoading(true);
+    
+    const timer = setTimeout(() => {
+      const rawData = generateCostData();
+      
+      if (timeRange === 'quarterly') {
+        // Aggregate monthly data into quarters
+        const q1 = rawData.slice(0, 3);
+        const q2 = rawData.slice(3, 6);
+        const q3 = rawData.slice(6, 9);
+        const q4 = rawData.slice(9, 12);
+        
+        const quarterlyData = [
+          {
+            quarter: 'Q1',
+            energyCost: q1.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q1.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q1.reduce((sum, item) => sum + item.savings, 0)
+          },
+          {
+            quarter: 'Q2',
+            energyCost: q2.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q2.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q2.reduce((sum, item) => sum + item.savings, 0)
+          },
+          {
+            quarter: 'Q3',
+            energyCost: q3.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q3.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q3.reduce((sum, item) => sum + item.savings, 0)
+          },
+          {
+            quarter: 'Q4',
+            energyCost: q4.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q4.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q4.reduce((sum, item) => sum + item.savings, 0)
+          }
+        ];
+        
+        setData(quarterlyData);
+      } else {
+        setData(rawData);
+      }
+      
+      setIsLoading(false);
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, [timeRange]);
+  
+  // Function to handle data refresh
+  const refreshData = () => {
+    setIsRefreshing(true);
+    
+    setTimeout(() => {
+      const rawData = generateCostData();
+      
+      if (timeRange === 'quarterly') {
+        // Aggregate monthly data into quarters
+        const q1 = rawData.slice(0, 3);
+        const q2 = rawData.slice(3, 6);
+        const q3 = rawData.slice(6, 9);
+        const q4 = rawData.slice(9, 12);
+        
+        const quarterlyData = [
+          {
+            quarter: 'Q1',
+            energyCost: q1.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q1.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q1.reduce((sum, item) => sum + item.savings, 0)
+          },
+          {
+            quarter: 'Q2',
+            energyCost: q2.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q2.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q2.reduce((sum, item) => sum + item.savings, 0)
+          },
+          {
+            quarter: 'Q3',
+            energyCost: q3.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q3.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q3.reduce((sum, item) => sum + item.savings, 0)
+          },
+          {
+            quarter: 'Q4',
+            energyCost: q4.reduce((sum, item) => sum + item.energyCost, 0),
+            projectedCost: q4.reduce((sum, item) => sum + item.projectedCost, 0),
+            savings: q4.reduce((sum, item) => sum + item.savings, 0)
+          }
+        ];
+        
+        setData(quarterlyData);
+      } else {
+        setData(rawData);
+      }
+      
+      setIsRefreshing(false);
+    }, 800);
+  };
+  
+  // Calculate total annual savings
+  const getTotalSavings = () => {
+    if (data.length === 0) return 0;
+    return data.reduce((sum, item) => sum + item.savings, 0);
+  };
   
   return (
     <DashboardCard
@@ -97,23 +184,36 @@ export default function CostAnalysisChart() {
     >
       <div className="p-4">
         <div className="mb-4 flex items-center justify-between">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <span className="capitalize">{timeRange} View</span>
-                <ChevronDown size={14} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuRadioGroup 
-                value={timeRange} 
-                onValueChange={(value) => setTimeRange(value as TimeRange)}
-              >
-                <DropdownMenuRadioItem value="monthly">Monthly View</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="quarterly">Quarterly View</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <span className="capitalize">{timeRange} View</span>
+                  <ChevronDown size={14} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuRadioGroup 
+                  value={timeRange} 
+                  onValueChange={(value) => setTimeRange(value as TimeRange)}
+                >
+                  <DropdownMenuRadioItem value="monthly">Monthly View</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="quarterly">Quarterly View</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-1.5"
+              onClick={refreshData}
+              disabled={isRefreshing}
+            >
+              <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
+              <span>{isRefreshing ? "Updating..." : "Refresh"}</span>
+            </Button>
+          </div>
           
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
@@ -179,7 +279,9 @@ export default function CostAnalysisChart() {
               </p>
             </div>
             <div className="text-right mt-2 sm:mt-0">
-              <p className="text-2xl font-bold text-success">$15,500</p>
+              <p className="text-2xl font-bold text-success">
+                ${getTotalSavings().toLocaleString()}
+              </p>
               <p className="text-xs text-muted-foreground">Based on current implementation progress</p>
             </div>
           </div>
