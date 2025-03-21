@@ -276,9 +276,10 @@ export default function AIAnalysis() {
                 <ul className="space-y-3">
                   {featureImportanceData.slice(0, 3).map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="h-5 w-5 rounded-full" 
-                           style={{ backgroundColor: `${COLORS[index]}/20` }}
-                           className="flex items-center justify-center shrink-0 mt-0.5">
+                      <div 
+                        className="h-5 w-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ backgroundColor: `${COLORS[index]}/20` }}
+                      >
                         <span style={{ color: COLORS[index] }} className="text-xs">{index + 1}</span>
                       </div>
                       <p className="text-sm">
